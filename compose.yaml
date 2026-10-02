@@ -26,7 +26,7 @@ services:
     expose:
       - "8000"
     depends_on:
-      - pocket-id
+      - caddy
 
   caddy:
     image: docker.io/library/caddy:2
@@ -34,6 +34,12 @@ services:
     environment:
       DOMAIN: ${DOMAIN}
       AUTH_DOMAIN: ${AUTH_DOMAIN}
+    networks:
+      default:
+        # Lets mcp reach Pocket ID (for OIDC discovery) via Caddy over the
+        # internal network, without depending on public DNS / hairpin NAT.
+        aliases:
+          - ${AUTH_DOMAIN}
     ports:
       - "80:80"
       - "443:443"
@@ -43,7 +49,6 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - mcp
       - pocket-id
 
 volumes:
