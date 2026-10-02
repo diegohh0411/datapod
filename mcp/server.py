@@ -63,6 +63,9 @@ def _build_auth():
         base_url=f"https://{os.environ['DOMAIN']}",
         jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
         required_scopes=["openid", "profile", "email"],
+        # Pocket ID's access tokens carry no scope claim, so verify the
+        # id_token instead; scopes are still enforced on FastMCP's own tokens.
+        verify_id_token=True,
         # OAuth client registrations and upstream tokens are stored encrypted
         # under FASTMCP_HOME (on the persistent /data volume).
     )
