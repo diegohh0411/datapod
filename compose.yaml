@@ -1,0 +1,53 @@
+services:
+  pocket-id:
+    image: ghcr.io/pocket-id/pocket-id:v1
+    restart: unless-stopped
+    environment:
+      APP_URL: https://${AUTH_DOMAIN}
+      TRUST_PROXY: "true"
+      ENCRYPTION_KEY: ${POCKET_ID_ENCRYPTION_KEY}
+    volumes:
+      - pocketid_data:/app/data
+    expose:
+      - "1411"
+
+  mcp:
+    build: ./mcp
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN}
+      AUTH_DOMAIN: ${AUTH_DOMAIN}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      JWT_SIGNING_KEY: ${JWT_SIGNING_KEY}
+    volumes:
+      # SQLite database + encrypted OAuth client/token store.
+      - data:/data
+    expose:
+      - "8000"
+    depends_on:
+      - pocket-id
+
+  caddy:
+    image: docker.io/library/caddy:2
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN}
+      AUTH_DOMAIN: ${AUTH_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro,Z
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - mcp
+      - pocket-id
+
+volumes:
+  data:
+  pocketid_data:
+  caddy_data:
+  caddy_config:
