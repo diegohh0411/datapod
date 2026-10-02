@@ -56,15 +56,7 @@ def _build_auth():
         return None
     from fastmcp.server.auth.oidc_proxy import OIDCProxy
 
-    class PocketIDProxy(OIDCProxy):
-        def _translate_scopes_from_idp(self, scopes):
-            # Pocket ID returns an empty `scope` in its token responses, which
-            # FastMCP treats as "granted nothing" and then rejects its own
-            # tokens for lacking the required scopes. Access is already gated
-            # by the Pocket ID group, so fall back to the required scopes.
-            return scopes or list(self.required_scopes or [])
-
-    return PocketIDProxy(
+    return OIDCProxy(
         config_url=f"https://{os.environ['AUTH_DOMAIN']}/.well-known/openid-configuration",
         client_id=os.environ["OIDC_CLIENT_ID"],
         client_secret=os.environ["OIDC_CLIENT_SECRET"],
