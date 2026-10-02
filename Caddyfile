@@ -1,0 +1,11 @@
+{$AUTH_DOMAIN} {
+	reverse_proxy pocket-id:1411
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy mcp:8000 {
+		# Don't buffer streamable HTTP / SSE responses.
+		flush_interval -1
+	}
+}

@@ -1,0 +1,21 @@
+FROM python:3.12-slim
+
+RUN useradd --create-home --uid 1000 app \
+    && mkdir /data && chown app:app /data
+
+WORKDIR /app
+COPY pyproject.toml .
+RUN pip install --no-cache-dir .
+COPY server.py .
+
+USER app
+ENV PYTHONUNBUFFERED=1 \
+    DATAPOD_DB=/data/datapod.db \
+    FASTMCP_HOME=/data/fastmcp
+VOLUME /data
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+
+CMD ["python", "server.py"]
