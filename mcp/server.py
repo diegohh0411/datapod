@@ -16,7 +16,7 @@ MAX_ROWS = int(os.environ.get("DATAPOD_MAX_ROWS", "1000"))
 QUERY_TIMEOUT = float(os.environ.get("DATAPOD_QUERY_TIMEOUT", "10"))
 
 # Read-only introspection pragmas the AI may use; everything else is denied.
-ALLOWED_PRAGMAS = {"table_info", "table_xinfo", "index_list", "index_info", "foreign_key_list"}
+ALLOWED_PRAGMAS = {"table_info", "table_xinfo", "index_list", "index_info", "foreign_key_list", "quick_check"}
 
 
 def _authorizer(action, arg1, arg2, db_name, trigger):
